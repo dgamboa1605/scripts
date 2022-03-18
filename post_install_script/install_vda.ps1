@@ -65,6 +65,42 @@ Function Write-Log {
     Add-Content $LogFile -Value "$Stamp $LevelValue $Message"
 }
 
+Function Set-Trusted-Sites($TrustedSites) {
+    #Setting IExplorer settings
+    Write-Log -Level Info "Now configuring IE Trusted Sites"
+    try {
+        ForEach ($TrustedSite in $TrustedSites) {
+            #Navigate to the Domains folder in the registry
+            $location = "HKCU:\Software\Microsoft\Windows\CurrentVersion\Internet Settings\ZoneMap\Domains"
+            set-location $location
+
+            $regKeyPath = "$location\$TrustedSite"
+
+            #Create a Registry Key with the website name if it not exist
+            If (!(Test-Path $regKeyPath)) {
+                #Create a new Registry Key with the website name
+                new-item $TrustedSite/ -Force
+
+                #open the created Registry Key
+                set-location $TrustedSite/
+
+                #add new value to the Registry Key
+                new-itemproperty . -Name https -Value 2 -Type DWORD -Force
+
+                Write-Log -Level Info "Added Trusted Site $TrustedSite to the Registry"
+            } Else {
+                Write-Log -Level Info "Already added Trusted Site $TrustedSite"
+            }
+        }
+    } catch {
+        $string_err = $_ | Out-string
+        Write-Log -Level Info "Cannot add TrustedSites to the Registry $string_err"
+    }
+    Write-Log -Level Info "Finished adding Trusted Sites"
+    # Set back to the c: drive
+    c:
+}
+
 Function Check-Vda-Installed{
     Write-Log -Level Info "Checking if VDA is isntalled"
     $app = Get-WmiObject -Class Win32_Product | where vendor -eq "Citrix Systems, Inc." | Select Name
@@ -216,6 +252,9 @@ Function Windows-Update {
 # MAIN
 #
 Write-Environment
+$TrustedSites = @(
+    "github.com"
+)
 
 if ($preferredDnsServer -ne "") {
     Set-Dns -preferredDnsServer $preferredDnsServer
@@ -229,6 +268,7 @@ if ($res -eq $false){
         shutdown /r /t 60
     }else{
         if ($VdaExeName -ne "") {
+            Set-Trusted-Sites $TrustedSites
             Download-Vda -vdaExeName $VdaExeName
             Install-Vda -vdaExeName $VdaExeName
             Windows-Update
