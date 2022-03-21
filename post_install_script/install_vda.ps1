@@ -264,8 +264,9 @@ $res = Check-Vda-Installed
 if ($res -eq $false){
     $citrixLogs = "$HOME\Desktop\Citrix\XenDesktop Installer\XenDesktop Installation.log"
     if (Test-Path $citrixLogs){
-        Write-Log -Level Info "Waiting 240 seconds to complete the installation"
-        Start-Sleep -Seconds 240
+        $time = 360
+        Write-Log -Level Info "Waiting " + $time + " seconds to complete the installation"
+        Start-Sleep -Seconds $time
         Write-Log -Level Info "Reboot windows to complete install VDA"
         shutdown /r /t 5
     }else{
