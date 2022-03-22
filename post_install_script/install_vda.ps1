@@ -16,7 +16,7 @@
 # limitations under the License.
 #############################################################################
 param (
-    [Parameter(Mandatory=$false)][string]$VdaExeName,
+#    [Parameter(Mandatory=$false)][string]$VdaExeName,
     [Parameter(Mandatory=$false)][string]$preferredDnsServer
 )
 
@@ -259,29 +259,29 @@ $TrustedSites = @(
 if ($preferredDnsServer -ne "") {
     Set-Dns -preferredDnsServer $preferredDnsServer
 }
-$res = Check-Vda-Installed
-
-if ($res -eq $false){
-    $citrixLogs = "$HOME\Desktop\Citrix\XenDesktop Installer\XenDesktop Installation.log"
-    if (Test-Path $citrixLogs){
-        $time = 360
-        Write-Log -Level Info "Waiting " + $time + " seconds to complete the installation"
-        Start-Sleep -Seconds $time
-        Write-Log -Level Info "Reboot windows to complete install VDA"
-        shutdown /r /t 5
-    }else{
-        if ($VdaExeName -ne "") {
-            Set-Trusted-Sites $TrustedSites
-            Download-Vda -vdaExeName $VdaExeName
-            Install-Vda -vdaExeName $VdaExeName
-            Windows-Update
-        } else {
-            Write-Log -Level Info "VDA is not yet installed, manually run this script with the VDA Executable file name as an argument to Install VDA"
-        }
-    }
-}else {
-    Write-Log -Level Info "Installing Windows Updates, server will be rebooted automatically if required"
-    Get-WindowsUpdate -Verbose
-    Install-WindowsUpdate -AcceptAll -AutoReboot
-    Write-Log -Level Info "Windows Updates Installed"
-}
+#$res = Check-Vda-Installed
+#
+#if ($res -eq $false){
+#    $citrixLogs = "$HOME\Desktop\Citrix\XenDesktop Installer\XenDesktop Installation.log"
+#    if (Test-Path $citrixLogs){
+#        $time = 360
+#        Write-Log -Level Info "Waiting " + $time + " seconds to complete the installation"
+#        Start-Sleep -Seconds $time
+#        Write-Log -Level Info "Reboot windows to complete install VDA"
+#        shutdown /r /t 5
+#    }else{
+#        if ($VdaExeName -ne "") {
+#            Set-Trusted-Sites $TrustedSites
+#            Download-Vda -vdaExeName $VdaExeName
+#            Install-Vda -vdaExeName $VdaExeName
+#            Windows-Update
+#        } else {
+#            Write-Log -Level Info "VDA is not yet installed, manually run this script with the VDA Executable file name as an argument to Install VDA"
+#        }
+#    }
+#}else {
+#    Write-Log -Level Info "Installing Windows Updates, server will be rebooted automatically if required"
+#    Get-WindowsUpdate -Verbose
+#    Install-WindowsUpdate -AcceptAll -AutoReboot
+#    Write-Log -Level Info "Windows Updates Installed"
+#}
